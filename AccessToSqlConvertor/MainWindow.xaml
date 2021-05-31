@@ -1,0 +1,95 @@
+﻿<Window x:Class="AccessToSqlConvertor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AccessToSqlConvertor"
+        mc:Ignorable="d"
+        FlowDirection="RightToLeft"  WindowStartupLocation="CenterScreen"
+        Title="המרת קבצי MDB לקבצי MDF" Height="180" Width="900" Background="Black">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button 
+            Content="Select access file" 
+            Click="OpenAccessFile" 
+            FontSize="24"
+            Grid.Row="0" 
+            Cursor="Hand"
+            Style="{DynamicResource ExitButton}"
+            Grid.Column="0"/>
+        <Border 
+            BorderBrush="Black" 
+            Background="#2a2a2a" 
+            BorderThickness="3" 
+            Grid.Column="1" 
+            Grid.Row="0">
+            <TextBlock
+                Foreground="White" 
+                x:Name="Access"
+                FontSize="24" 
+                FlowDirection="LeftToRight"
+                VerticalAlignment="Center"/>
+        </Border>
+
+        <Button
+            Click="OpenSqlFile"
+            FontSize="24"
+            Grid.Column="0" 
+            Cursor="Hand"
+            Style="{DynamicResource RegularButton}"
+            Grid.Row="1">
+            <TextBlock 
+                Text="Select local SQL file"
+                TextWrapping="Wrap"/>
+        </Button>
+        
+        <Border 
+            BorderBrush="Black"
+            BorderThickness="3"
+            Grid.Column="1" 
+            Grid.Row="1">
+            <TextBlock 
+                Background="#2a2a2a" 
+                Foreground="White" 
+                x:Name="Sql"
+                FontSize="24"
+                FlowDirection="LeftToRight"  />
+        </Border>
+
+        <Button 
+            Content="צור קובץ MDF חדש"
+            ToolTip="בצע יצירה של קובץ MDF מקובץ MDB שסופק"
+            Click="Convert"
+            Grid.Row="2" 
+            Cursor="Hand"
+            Grid.Column="0"
+            Grid.ColumnSpan="2" 
+            FontSize="24">
+            <Button.Style>
+                <Style BasedOn="{StaticResource OKButton}" TargetType="{x:Type Button}">
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="#c0ffd0"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Text.Length, ElementName=Access, UpdateSourceTrigger=PropertyChanged}" Value="0">
+                            <Setter Property="IsEnabled" Value="False"/>
+                            <Setter Property="Foreground" Value="#dcdcdc"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Text.Length, ElementName=Sql, UpdateSourceTrigger=PropertyChanged}" Value="0">
+                            <Setter Property="Content" Value="העתק תוכן מסד נתונים ACCESS אל קובץ MDF הנבחר"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+    </Grid>
+</Window>

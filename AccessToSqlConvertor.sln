@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessToSqlConvertor", "AccessToSqlConvertor\AccessToSqlConvertor.csproj", "{F53DDA3B-7528-430D-B7A5-98DDC2B5C270}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F53DDA3B-7528-430D-B7A5-98DDC2B5C270}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F53DDA3B-7528-430D-B7A5-98DDC2B5C270}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F53DDA3B-7528-430D-B7A5-98DDC2B5C270}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F53DDA3B-7528-430D-B7A5-98DDC2B5C270}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17E88DCE-EB93-4DC2-9C90-2B5D03A1ED1D}
+	EndGlobalSection
+EndGlobal
