@@ -3,13 +3,14 @@ using System.IO;
 using FastMember;
 using System.Linq;
 using System.Data;
+// Custom DLL for InfoBox
+using CommonWindows;
 using System.Windows;
 using Microsoft.Win32;
 using System.Data.OleDb;
 using System.Data.SqlClient;
 using Path = System.IO.Path;
 using System.Collections.Generic;
-using CommonWindows;
 
 namespace AccessToSqlConvertor
 {
