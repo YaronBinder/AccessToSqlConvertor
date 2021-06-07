@@ -3,6 +3,7 @@ using System.IO;
 using FastMember;
 using System.Linq;
 using System.Data;
+// Custom DLL for InfoBox
 using CommonWindows;
 using System.Windows;
 using System.Data.OleDb;
@@ -33,6 +34,7 @@ namespace AccessToSqlConvertor
         #endregion
 
         #region Buttons click event
+
         private void OpenAccessFile(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFile = new()
