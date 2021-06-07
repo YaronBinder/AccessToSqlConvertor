@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:AccessToSqlConvertor"
         mc:Ignorable="d"
         FlowDirection="RightToLeft"  WindowStartupLocation="CenterScreen"
-        Title="המרת קבצי MDB לקבצי MDF" Height="180" Width="900" Background="Black">
+        Title="המרת קבצי MDB לקבצי MDF" Height="180" Width="840" 
+        Background="Black" MinWidth="295" MinHeight="180">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="280"/>
@@ -19,7 +20,7 @@
         </Grid.RowDefinitions>
 
         <Button 
-            Content="Select access file" 
+            Content="Select access file"
             Click="OpenAccessFile" 
             FontSize="24"
             Grid.Row="0" 
@@ -30,12 +31,12 @@
             BorderBrush="Black" 
             Background="#2a2a2a" 
             BorderThickness="3" 
-            Grid.Column="1" 
+            Grid.Column="1"
             Grid.Row="0">
             <TextBlock
                 Foreground="White" 
                 x:Name="Access"
-                FontSize="24" 
+                FontSize="24"
                 FlowDirection="LeftToRight"
                 VerticalAlignment="Center"/>
         </Border>
@@ -45,11 +46,23 @@
             FontSize="24"
             Grid.Column="0" 
             Cursor="Hand"
-            Style="{DynamicResource RegularButton}"
             Grid.Row="1">
             <TextBlock 
                 Text="Select local SQL file"
                 TextWrapping="Wrap"/>
+            <Button.Style>
+                <Style BasedOn="{StaticResource RegularButton}" TargetType="{x:Type Button}">
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="#c0d0ff"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Text.Length, ElementName=Access, UpdateSourceTrigger=PropertyChanged}" Value="0">
+                            <Setter Property="IsEnabled" Value="False"/>
+                            <Setter Property="Foreground" Value="#dcdcdc"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
         </Button>
         
         <Border 

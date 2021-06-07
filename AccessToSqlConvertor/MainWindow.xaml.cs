@@ -3,13 +3,15 @@ using System.IO;
 using FastMember;
 using System.Linq;
 using System.Data;
+using CommonWindows;
 using System.Windows;
-using Microsoft.Win32;
 using System.Data.OleDb;
+using System.Windows.Forms;
 using System.Data.SqlClient;
 using Path = System.IO.Path;
 using System.Collections.Generic;
-using CommonWindows;
+using Result = System.Windows.Forms.DialogResult;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace AccessToSqlConvertor
 {
@@ -18,10 +20,19 @@ namespace AccessToSqlConvertor
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Constructor
+
         public MainWindow() => InitializeComponent();
-        
+
+        #endregion
+
+        #region Properties
         public string AccessLocation { get; set; }
         public string SqlLocation { get; set; } = null;
+
+        #endregion
+
+        #region Buttons click event
         private void OpenAccessFile(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFile = new()
@@ -60,6 +71,20 @@ namespace AccessToSqlConvertor
             string emptySqlConnection = $"Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=master; Integrated Security=true;";
             string accessConnectionString = $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={AccessLocation};Persist Security Info=False;";
 
+            // Choose to save the new .MDF file in the same folder or in other folder
+            string folderName = null;
+            YesNoWindow yesNoWindow = new("האם ברצונך לבחור תיקית יעד שונה לשמירת מסד הנתונים?", "כן", "לא");
+            yesNoWindow.ShowDialog();
+            if (yesNoWindow.ResultYes)
+            {
+                using var folderBrowser = new FolderBrowserDialog();
+                Result result = folderBrowser.ShowDialog();
+                if (result == Result.OK && !string.IsNullOrWhiteSpace(folderBrowser.SelectedPath))
+                {
+                    folderName = folderBrowser.SelectedPath;
+                }
+            }
+
             // Fill the List of DataTable with all the tables inside the access file
             using OleDbConnection oleDbConnection = new(accessConnectionString);
             oleDbConnection.Open();
@@ -81,8 +106,11 @@ namespace AccessToSqlConvertor
                 }
             }
 
+            // Data base name
             string databaseName = Path.GetFileNameWithoutExtension(AccessLocation);
-            string sqlNewDatabase = SqlLocation ?? AccessLocation.Replace("mdb", "mdf");
+
+            // New .MDF file save location
+            string sqlNewDatabase = folderName is null ? SqlLocation ?? AccessLocation.Replace("mdb", "mdf") : $"{folderName}\\{databaseName}.mdf";
 
             // If the the new MDF file is not exists, create new
             if (!File.Exists(sqlNewDatabase))
@@ -91,9 +119,6 @@ namespace AccessToSqlConvertor
                 sqlConnection.Open();
                 try
                 {
-                    //foreach (string table in accessTablesName)
-                    //{
-                    //}
                     using SqlCommand command = sqlConnection.CreateCommand();
 
                     command.CommandText = string.Format("CREATE DATABASE [{0}] ON PRIMARY (NAME=[{0}], FILENAME='{1}')", databaseName, sqlNewDatabase);
@@ -102,7 +127,7 @@ namespace AccessToSqlConvertor
                     command.CommandText = $"EXEC sp_detach_db '{databaseName}', 'true'";
                     command.ExecuteNonQuery();
 
-                    new InfoBox("אישור", $"מסד הנתונים {databaseName} נוצר בהצלחה בנתיב:{sqlNewDatabase}", MessageLevel.OK).ShowDialog();
+                    new InfoBox("אישור", $"מסד הנתונים {databaseName} נוצר בהצלחה בנתיב:\n{sqlNewDatabase}", MessageLevel.OK).ShowDialog();
                 }
                 catch (Exception ex)
                 {
@@ -128,11 +153,7 @@ namespace AccessToSqlConvertor
                     {
                         columns[j] = $"[{columnsNames[j]}] {GetType(columnsDataType[j])}";
                     }
-
-
-
-                    string query = $"CREATE TABLE [{accessTablesName[i]}] " +
-                                   $"({string.Join(", ", columns)})";
+                    string query = $"CREATE TABLE [{accessTablesName[i]}] ({string.Join(", ", columns)})";
                     try
                     {
                         using SqlCommand command = new(query, sqlConnection);
@@ -147,7 +168,7 @@ namespace AccessToSqlConvertor
                         sqlBulkCopy.DestinationTableName = accessTablesName[i];
                         if (columnsNames is not null || columnsNames.Length > 1)
                         {
-                            using ObjectReader objectReader = ObjectReader.Create(accessTables, columnsNames);
+                            //using ObjectReader objectReader = ObjectReader.Create(accessTables, columnsNames);
                             sqlBulkCopy.DestinationTableName = accessTablesName[i];
                             foreach (DataColumn column in accessTables[i].Columns)
                             {
@@ -173,6 +194,10 @@ namespace AccessToSqlConvertor
             Focus();
         }
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Get <see cref="List{DataTable}"/> of all the tables in the access database
         /// </summary>
@@ -196,7 +221,7 @@ namespace AccessToSqlConvertor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    new InfoBox("אישור", ex.Message, MessageLevel.Warning).ShowDialog();
                 }
             }
             return accessTables;
@@ -233,16 +258,13 @@ namespace AccessToSqlConvertor
                                $"WHERE table_name = '{tableName}'";
                 using SqlCommand command = new(query, sqlConnection);
                 using SqlDataReader reader = command.ExecuteReader();
+                DataTable data = reader.GetSchemaTable();
                 columnsNames = new List<string>();
-                while (reader.Read())
-                {
-                    string header = reader.GetString(0)[0].ToString().ToUpper() + reader.GetString(0).Substring(1);
-                    columnsNames.Add(header);
-                }
+                columnsNames.AddRange(from DataRow row in data.Rows select row.Field<string>(0));
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                new InfoBox("אישור", e.Message, MessageLevel.Warning).ShowDialog();
             }
             return columnsNames?.ToArray();
         }
@@ -267,7 +289,7 @@ namespace AccessToSqlConvertor
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                new InfoBox("אישור", e.Message, MessageLevel.Warning).ShowDialog();
             }
             return columnsNames?.ToArray();
         }
@@ -293,7 +315,7 @@ namespace AccessToSqlConvertor
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                new InfoBox("אישור", e.Message, MessageLevel.Warning).ShowDialog();
             }
             return columnsNames?.ToArray();
         }
@@ -306,15 +328,19 @@ namespace AccessToSqlConvertor
         private string GetType(string type)
             => type.ToLower() switch
             {
-                "system.int32" => "INT",
-                "system.long" => "BIGINT",
-                "system.single" => "REAL",
-                "system.float" => "FLOAT",
-                "system.bool" => "BOOLEAN",
-                "system.datetime" => "DATE",
-                "system.char" => "CHAR(255)",
-                "system.string" => "NVARCHAR(MAX)",
+                "system.long"      => "BIGINT",
+                "system.boolean" => "BIT",
+                "system.char"      => "CHAR(50)",
+                "system.int32"     => "INT",
+                "system.string"    => "NVARCHAR(255)",
+                "system.decimal"   => "decimal",
+                "system.datetime"  => "DATE",
+                "system.float"
+                or "system.double"
+                or "system.single" => "FLOAT",
                 _ => "NVARCHAR(255)"
             };
+
+        #endregion
     }
 }
